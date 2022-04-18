@@ -14,6 +14,7 @@ export default function Search() {
         <li>
           <img
             src={`http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`}
+            alt="forecast icon"
           />
         </li>
       </ul>

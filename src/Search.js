@@ -2,42 +2,56 @@ import React, { useState } from "react";
 import axios from "axios";
 
 export default function Search() {
-  const [feedback, setFeedback] = useState();
-  const [city, setCity] = useState();
+  const [city, setCity] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [weather, setWeather] = useState({});
 
-  function displayForecast(response) {
-    setFeedback(
-      <ul>
-        <li>Temperature:{Math.round(response.data.main.temp)}°C</li>
-        <li>Humidity:{Math.round(response.data.main.humidity)}‰</li>
-        <li>Wind Speed:{Math.round(response.data.wind.speed)}Km/h</li>
-        <li>
-          <img
-            src={`http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`}
-            alt="forecast icon"
-          />
-        </li>
-      </ul>
-    );
+  function displayWeather(response) {
+    setLoaded(true);
+    console.log(response.data);
+    setWeather({
+      description: response.data.weather[0].description,
+      temperature: Math.round(response.data.main.temp),
+      wind: response.data.wind.speed,
+      humidity: response.data.main.humidity,
+      icon: `http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`,
+    });
   }
 
-  function submitCity(event) {
+  function handleSubmit(event) {
     event.preventDefault();
-    let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=36627385a0b4fa9441ba14c41f6e63ca&units=metric`;
-    axios.get(url).then(displayForecast);
+    let apiKey = "36627385a0b4fa9441ba14c41f6e63ca";
+    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    axios.get(apiUrl).then(displayWeather);
   }
 
-  function content(event) {
+  function updateCity(event) {
     setCity(event.target.value);
   }
 
-  return (
-    <div className="Search">
-      <form onSubmit={submitCity}>
-        <input type="search" placeholder="Enter a city..." onChange={content} />
-        <input type="submit" value="Search" />
-      </form>
-      <div className="feedback"> {feedback} </div>
-    </div>
+  let form = (
+    <form onSubmit={handleSubmit}>
+      <input type="search" placeholder="Type a city..." onChange={updateCity} />
+      <button>Click Me!</button>
+    </form>
   );
+
+  if (loaded) {
+    return (
+      <div>
+        {form}
+        <ul>
+          <li>{weather.description}</li>
+          <li>Temperature: {weather.temperature}°C</li>
+          <li>Wind: {weather.wind} km/h</li>
+          <li>Humidity: {weather.humidity} %</li>
+          <li>
+            <img src={weather.icon} alt="Weather Icon" />
+          </li>
+        </ul>
+      </div>
+    );
+  } else {
+    return form;
+  }
 }
